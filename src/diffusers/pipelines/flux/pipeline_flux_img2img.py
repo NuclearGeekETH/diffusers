@@ -2,6 +2,7 @@ import inspect
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
+import PIL.Image
 import torch
 from transformers import CLIPTextModel, CLIPTokenizer, T5EncoderModel, T5TokenizerFast
 from PIL import Image
@@ -398,7 +399,7 @@ class FluxImg2ImgPipeline(DiffusionPipeline, SD3LoraLoaderMixin):
         return image
 
     @torch.no_grad()
-    @replace_example_docstring(EXAMPLE_DOC_STRING)
+    @replace_example_docstring("")
     def __call__(
         self,
         prompt: Union[str, List[str]] = None,
@@ -416,6 +417,8 @@ class FluxImg2ImgPipeline(DiffusionPipeline, SD3LoraLoaderMixin):
         output_type: Optional[str] = "pil",
         return_dict: bool = True,
         strength: Optional[float] = 0.8,
+        callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
+        callback_on_step_end_tensor_inputs: List[str] = ["latents", "prompt_embeds"]
     ):
         r"""
         Function invoked when calling the pipeline for image-to-image generation.
@@ -455,6 +458,7 @@ class FluxImg2ImgPipeline(DiffusionPipeline, SD3LoraLoaderMixin):
                 has the maximum impact, and "0" means no impact.
         Returns:
             FluxPipelineOutput or tuple: FluxPipelineOutput if `return_dict` is True, otherwise a tuple.
+        Examples:
         """
         height = height or self.default_sample_size * self.vae_scale_factor
         width = width or self.default_sample_size * self.vae_scale_factor
@@ -540,7 +544,7 @@ class FluxImg2ImgPipeline(DiffusionPipeline, SD3LoraLoaderMixin):
 
                 latents = self.scheduler.step(noise_pred, t, latents, return_dict=False)[0]
 
-                if "callback_on_step_end" is not definedPylancereportUndefinedVariable is not None:
+                if 'callback_on_step_end' in locals() and callback_on_step_end is not None:
                     callback_kwargs = {}
                     for k in callback_on_step_end_tensor_inputs:
                         callback_kwargs[k] = locals()[k]
